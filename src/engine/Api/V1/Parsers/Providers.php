@@ -128,10 +128,11 @@ class Providers implements ParsersInterface {
             $decodedRequest['notes'] = $request['notes'];
         }
 
-        if ( ! empty($request['services']))
-        {
+//      Keep service parameter even if it is empty
+//        if ( ! empty($request['services']))
+//        {
             $decodedRequest['services'] = $request['services'];
-        }
+//        }
 
         if ( ! empty($request['settings']))
         {
