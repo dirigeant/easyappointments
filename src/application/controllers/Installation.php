@@ -91,13 +91,34 @@ class Installation extends CI_Controller {
                 $this->db->query($query);
             }
 
+	    // {"admin": {"first_name": "John",					* optional
+	    //            "last_name": "Doe",					* required
+	    //            "email": "admin.email@example.com",			* required
+	    //            "phone_number": "555-0199",				* required
+	    //            "username": "admin_username",				* required
+	    //            "password": "admin_password"},			* required
+	    //  "company": {"company_name": "company name",			* required
+	    //              "company_email": "company.email@example.com",	* required
+	    //              "company_link": "https://company.link/"},		* required
+	    //  "load_sample_data": false}					* optional
+	    $input = json_decode(file_get_contents('php://input'));
+
             // Insert admin
             $this->load->model('admins_model');
+	    $admin = Array();
+	    $admin['settings']['username'] = $input->admin->username;
+	    $admin['settings']['password'] = $input->admin->password;
+	    $admin['first_name'] = $input->admin->first_name;
+	    $admin['last_name'] = $input->admin->last_name;
+	    $admin['phone_number'] = $input->admin->phone_number;
+	    $admin['email'] = $input->admin->email;
+	    /* FIXME use codeignitor magic
             $admin = $this->input->post('admin');
             $admin['settings']['username'] = $admin['username'];
             $admin['settings']['password'] = $admin['password'];
             $admin['settings']['calendar_view'] = CALENDAR_VIEW_DEFAULT;
             unset($admin['username'], $admin['password']);
+	    */
             $admin['id'] = $this->admins_model->add($admin);
 
             $this->load->library('session');
@@ -108,20 +129,27 @@ class Installation extends CI_Controller {
 
             // Save company settings
             $this->load->model('settings_model');
+            $this->settings_model->set_setting('company_name', $input->company->company_name);
+            $this->settings_model->set_setting('company_email', $input->company->company_email);
+            $this->settings_model->set_setting('company_link', $input->company->company_link);
+	    /* FIXME use codeignitor magic
             $company = $this->input->post('company');
             $this->settings_model->set_setting('company_name', $company['company_name']);
             $this->settings_model->set_setting('company_email', $company['company_email']);
             $this->settings_model->set_setting('company_link', $company['company_link']);
+	    */
 
             // Create sample records.
             $this->load->model('services_model');
             $this->load->model('providers_model');
 
-            $sample_service = get_sample_service();
-            $sample_service['id'] = $this->services_model->add($sample_service);
-            $sample_provider = get_sample_provider();
-            $sample_provider['services'][] = $sample_service['id'];
-            $this->providers_model->add($sample_provider);
+            if(isset($input->load_sample_data) && $input->load_sample_data){
+	            $sample_service = get_sample_service();
+		    $sample_service['id'] = $this->services_model->add($sample_service);
+		    $sample_provider = get_sample_provider();
+		    $sample_provider['services'][] = $sample_service['id'];
+		    $this->providers_model->add($sample_provider);
+	    }
 
             $this->output
                 ->set_content_type('application/json')
