@@ -36,6 +36,14 @@
  * @filesource
  */
 
+/* MULTI-TENANT DB CONF */
+$hostname = explode('.', $_SERVER['HTTP_HOST'], 2);
+$db_name = $hostname[0];  # use subdomain as db name
+
+define('TENANT_BASE_URL', $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST']);
+define('TENANT_DB_NAME', $db_name);
+/* END OF MULTI-TENANT DB CONF */
+
  /*
   *---------------------------------------------------------------
   * EASY!APPOINTMENTS CONFIGURATION
