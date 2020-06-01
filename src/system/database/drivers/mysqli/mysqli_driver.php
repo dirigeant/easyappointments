@@ -198,7 +198,12 @@ class CI_DB_mysqli_driver extends CI_DB {
 			}
 		}
 
-		if ($this->_mysqli->real_connect($hostname, $this->username, $this->password, $this->database, $port, $socket, $client_flags))
+		# get or create database
+		$this->_mysqli->real_connect($hostname, $this->username, $this->password, null, $port, $socket, $client_flags);
+		$this->_mysqli->query("CREATE DATABASE IF NOT EXISTS $this->database");
+		$conn = $this->_mysqli->select_db($this->database);
+
+		if ($conn)
 		{
 			// Prior to version 5.7.3, MySQL silently downgrades to an unencrypted connection if SSL setup fails
 			if (
