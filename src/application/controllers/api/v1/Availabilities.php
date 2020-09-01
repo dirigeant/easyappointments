@@ -327,6 +327,11 @@ class Availabilities extends API_V1_Controller {
         {
             $start_hour = new DateTime($selected_date . ' ' . $period['start']);
             $end_hour = new DateTime($selected_date . ' ' . $period['end']);
+
+            if($period['end'] == "23:59"){
+	      $end_hour->add(new DateInterval('PT1M'));
+	    }
+
             $interval = $availabilities_type === AVAILABILITIES_TYPE_FIXED ? (int)$service_duration : 15;
 
             $current_hour = $start_hour;
